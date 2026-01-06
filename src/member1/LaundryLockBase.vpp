@@ -1,0 +1,74 @@
+-- By: Neasthy
+-- Objectives Covered:
+-- Obj 1: Prevent conflicting states
+-- Obj 3: Ensure accurate tracking structure
+
+class LaundryLockBase
+
+types
+    public MachineId = nat1;
+    public UserId    = nat1;
+    public Time      = nat;
+
+    -- Machine status definition
+    public Status =
+        <Available> |
+        <Booked> |
+        <InUse> |
+        <Completed>;
+
+values
+    -- Maximum number of machines allowed in the system
+    public MAX_MACHINES : nat1 = 20;
+
+instance variables
+    -- Registered users
+    private users : set of UserId := {};
+
+    -- Mapping of machine to its current status
+    private machineStatus : map MachineId to Status := {|->};
+
+inv mk_LaundryLockBase(u, ms) ==
+    -- Invariant 1 (Obj 1):
+    -- Number of machines must not exceed system limit
+    card dom ms <= MAX_MACHINES
+
+    and
+
+    -- Invariant 2 (Obj 3):
+    -- Every machine must always have a valid status
+    forall mid in set dom ms &
+        ms(mid) = <Available> or
+        ms(mid) = <Booked> or
+        ms(mid) = <InUse> or
+        ms(mid) = <Completed>;
+
+operations
+
+-- Register a new user
+public registerUser : UserId ==> ()
+registerUser(uid) ==
+(
+    users := users union {uid}
+)
+pre uid not in set users
+post uid in set users;
+
+-- Add a new laundry machine with default Available status
+public addMachine : MachineId ==> ()
+addMachine(mid) ==
+(
+    machineStatus := machineStatus munion { mid |-> <Available> }
+)
+pre mid not in set dom machineStatus
+post machineStatus(mid) = <Available>;
+
+-- Query current status of a machine
+public getMachineStatus : MachineId ==> Status
+getMachineStatus(mid) ==
+(
+    return machineStatus(mid)
+)
+pre mid in set dom machineStatus;
+
+end LaundryLockBase
