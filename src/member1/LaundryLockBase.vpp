@@ -29,13 +29,13 @@ instance variables
     private machineStatus : map MachineId to Status := {|->};
 
 inv mk_LaundryLockBase(u, ms) ==
-    -- Invariant 1 (Obj 1):
+    -- obj 1
     -- Number of machines must not exceed system limit
     card dom ms <= MAX_MACHINES
 
     and
 
-    -- Invariant 2 (Obj 3):
+    -- obj 3
     -- Every machine must always have a valid status
     forall mid in set dom ms &
         ms(mid) = <Available> or
