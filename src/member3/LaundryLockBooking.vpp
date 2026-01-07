@@ -1,0 +1,62 @@
+-- By : Alyssa Annabelle binti James Pekan
+-- Objectives Covered:
+-- Obj 1: Prevent booking conflicts
+-- Obj 2: Controlled reservation flow
+
+class LaundryLockBooking is subclass of LaundryLockBase
+
+instance variables
+  -- machine -> user who booked it
+  private reservations : map MachineId to UserId := {|->};
+
+inv
+  -- reservations can only exist for machines that exist in the base class
+  dom reservations subset dom machineStatus
+  and
+  -- any reserved machine must be marked as Booked
+  forall mid in set dom reservations & machineStatus(mid) = <Booked>;
+
+operations
+
+  -- reserveMachine(user, machineId)
+  public reserveMachine : UserId * MachineId ==> ()
+  reserveMachine(u, mid) ==
+  (
+    reservations := reservations ++ { mid |-> u };
+    machineStatus := machineStatus ++ { mid |-> <Booked> }
+  )
+  pre u in set users and
+      mid in set dom machineStatus and
+      machineStatus(mid) = <Available> and
+      mid not in set dom reservations
+  post reservations(mid) = u and
+       machineStatus(mid) = <Booked>;
+
+  -- cancelReservation(user, machineId)
+  public cancelReservation : UserId * MachineId ==> ()
+  cancelReservation(u, mid) ==
+  (
+    reservations := {mid} <-: reservations;
+    machineStatus := machineStatus ++ { mid |-> <Available> }
+  )
+  pre mid in set dom reservations and
+      reservations(mid) = u and
+      machineStatus(mid) = <Booked>
+  post mid not in set dom reservations and
+       machineStatus(mid) = <Available>;
+
+  -- releaseMachine(machineId)
+  -- system/admin unlock after booking ends or forced release
+  public releaseMachine : MachineId ==> ()
+  releaseMachine(mid) ==
+  (
+    reservations := {mid} <-: reservations;
+    machineStatus := machineStatus ++ { mid |-> <Available> }
+  )
+  pre mid in set dom machineStatus and
+      mid in set dom reservations and
+      machineStatus(mid) = <Booked>
+  post mid not in set dom reservations and
+       machineStatus(mid) = <Available>;
+
+end LaundryLockBooking
