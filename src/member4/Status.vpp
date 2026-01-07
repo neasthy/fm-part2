@@ -2,9 +2,6 @@
 -- Member 4: Noraziela
 -- Real-Time Status Updates & Notifications
 -- System: LaundryLock – Smart Laundry Booking System
--- Objectives Covered:
--- Obj 2: Reduce waiting time via timely updates
--- Obj 3: Accurate automated tracking
 -- =========================================================
 
 class LaundryLockTracking is subclass of LaundryLockBooking
@@ -75,3 +72,4 @@ pre uid in set users and
 -- Obj 2: User informed immediately when cycle ends
 
 end LaundryLockTracking
+
