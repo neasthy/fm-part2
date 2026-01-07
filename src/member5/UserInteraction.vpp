@@ -1,0 +1,83 @@
+-- =========================================================
+-- Member 5: User Interaction Layer
+-- System: LaundryLock – Smart Laundry Booking System
+-- Focus: Objective 4 (User Satisfaction)
+-- =========================================================
+
+class UserManager
+
+types
+  Status = <Available> | <Booked>;
+
+instance variables
+  users    : set of nat;
+  machines : map nat to Status;
+
+operations
+
+-- Constructor / initializer
+public init : () ==> ()
+init() ==
+(
+  users := {};
+  machines := {|->};
+);
+
+-- Register a new user
+public registerUser : nat ==> ()
+registerUser(uid) ==
+(
+  users := users union {uid}
+)
+pre uid not in set users
+post uid in set users;
+-- Obj 4: Simple and user-friendly onboarding
+
+
+-- View available machines
+public viewAvailableMachines : () ==> set of nat
+viewAvailableMachines() ==
+(
+  return { mid | mid in set dom machines &
+           machines(mid) = <Available> }
+);
+-- Obj 4: Clear availability improves user satisfaction
+
+
+-- Check user's bookings (simplified model)
+public checkMyBooking : nat ==> set of nat
+checkMyBooking(uid) ==
+(
+  return { mid | mid in set dom machines &
+           machines(mid) = <Booked> }
+)
+pre uid in set users;
+-- Obj 4: Transparency improves trust
+
+
+-- Initialize machines (simulation only)
+public initMachines : () ==> ()
+initMachines() ==
+(
+  machines := {1 |-> <Available>, 2 |-> <Booked>, 3 |-> <Available>}
+);
+
+-- =========================
+-- TEST OPERATION (MANDATORY)
+-- =========================
+public testRun : () ==> ()
+testRun() ==
+(
+  -- initialize system state
+  init();
+  initMachines();
+
+  -- simulate user interaction
+  registerUser(1);
+  viewAvailableMachines();
+  checkMyBooking(1);
+
+  skip
+);
+
+end UserManager
