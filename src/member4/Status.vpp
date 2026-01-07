@@ -1,8 +1,6 @@
--- =========================================================
 -- Member 4: Noraziela
 -- Real-Time Status Updates & Notifications
 -- System: LaundryLock – Smart Laundry Booking System
--- =========================================================
 
 class LaundryLockTracking is subclass of LaundryLockBooking
 
@@ -72,4 +70,5 @@ pre uid in set users and
 -- Obj 2: User informed immediately when cycle ends
 
 end LaundryLockTracking
+
 
