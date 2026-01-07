@@ -1,0 +1,77 @@
+-- =========================================================
+-- Member 4: Noraziela
+-- Real-Time Status Updates & Notifications
+-- System: LaundryLock – Smart Laundry Booking System
+-- Objectives Covered:
+-- Obj 2: Reduce waiting time via timely updates
+-- Obj 3: Accurate automated tracking
+-- =========================================================
+
+class LaundryLockTracking is subclass of LaundryLockBooking
+
+instance variables
+  -- Track machine usage times
+  startTime : map MachineId to Time := {|->};
+  endTime   : map MachineId to Time := {|->};
+
+inv
+  -- Timing only applies to machines that are in use or completed
+  forall mid in set dom startTime &
+    mid in set dom machineStatus and
+    (machineStatus(mid) = <InUse> or machineStatus(mid) = <Completed>);
+
+operations
+
+-- Start machine usage after booking
+public startMachine : MachineId * Time ==> ()
+startMachine(mid, t) ==
+(
+  machineStatus := machineStatus ++ { mid |-> <InUse> };
+  startTime := startTime ++ { mid |-> t }
+)
+pre mid in set dom machineStatus and
+    machineStatus(mid) = <Booked>
+post machineStatus(mid) = <InUse> and
+     startTime(mid) = t;
+-- Obj 2: Immediate transition reduces idle time
+
+
+-- Check if machine cycle is completed
+public checkCompletion : MachineId * Time ==> ()
+checkCompletion(mid, currentTime) ==
+(
+  if currentTime >= endTime(mid)
+  then
+    machineStatus := machineStatus ++ { mid |-> <Completed> }
+)
+pre mid in set dom endTime and
+    machineStatus(mid) = <InUse>
+post machineStatus(mid) = <Completed>;
+-- Obj 3: Accurate state transition
+
+
+-- Release machine after completion
+public updateStatus : MachineId ==> ()
+updateStatus(mid) ==
+(
+  machineStatus := machineStatus ++ { mid |-> <Available> };
+  startTime := {mid} <-: startTime;
+  endTime := {mid} <-: endTime
+)
+pre mid in set dom machineStatus and
+    machineStatus(mid) = <Completed>
+post machineStatus(mid) = <Available>;
+-- Obj 2 & Obj 3: Fast availability refresh
+
+
+-- Simulated user notification
+public notifyUser : UserId * MachineId ==> ()
+notifyUser(uid, mid) ==
+(
+  skip
+)
+pre uid in set users and
+    mid in set dom machineStatus;
+-- Obj 2: User informed immediately when cycle ends
+
+end LaundryLockTracking
