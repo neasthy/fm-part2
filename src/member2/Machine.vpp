@@ -1,2 +1,112 @@
--- Member 2 placeholder
--- Implement Machine class and locking mechanism here
+-- =========================================================
+-- Member 2  : Nur Aainaa Hamraa binti Hamka
+-- 
+-- Purpose:
+-- Represents an individual laundry machine with exclusive
+-- access control and state tracking.
+--
+-- Objectives Supported:
+-- Obj 1: Prevent double booking
+-- Obj 3: Accurate machine state tracking
+-- =========================================================
+
+class Machine
+
+-- =========================================================
+-- TYPES
+-- =========================================================
+types
+  -- Unique identifier for a machine
+  public MachineId = nat1;
+
+  -- Unique identifier for a user
+  public UserId = nat1;
+
+  -- Time representation (abstract)
+  public Time = nat;
+
+  -- Machine operational states
+  public Status =
+    <Available> |
+    <Booked> |
+    <InUse> |
+    <Completed>;
+
+-- =========================================================
+-- INSTANCE VARIABLES
+-- =========================================================
+instance variables
+  -- Machine identifier
+  id : MachineId;
+
+  -- Current operational status of the machine
+  status : Status := <Available>;
+
+  -- User currently associated with the machine (if any)
+  currentUser : [UserId] := nil;
+
+  -- Start time of machine usage (if applicable)
+  startTime : [Time] := nil;
+
+  -- End time of machine usage (if applicable)
+  endTime : [Time] := nil;
+
+-- =========================================================
+-- MACHINE INVARIANT
+-- =========================================================
+inv
+  -- Available machines must not be associated with any user
+  (status = <Available> =>
+      currentUser = nil and startTime = nil and endTime = nil)
+  and
+  -- Booked or InUse machines must have an associated user
+  ((status = <Booked> or status = <InUse>) =>
+      currentUser <> nil)
+  and
+  -- Completed machines must have recorded start and end times
+  (status = <Completed> =>
+      startTime <> nil and endTime <> nil);
+
+-- =========================================================
+-- OPERATIONS
+-- =========================================================
+operations
+
+-- Check whether the machine is currently available
+public isAvailable : () ==> bool
+isAvailable() ==
+(
+  return status = <Available>
+);
+
+-- Lock the machine for exclusive use by a user
+-- Obj 1: Prevents concurrent usage of the same machine
+public lockMachine : UserId * Time ==> ()
+lockMachine(u, t) ==
+(
+  status := <Booked>;
+  currentUser := u;
+  startTime := t
+)
+pre status = <Available>
+post status = <Booked> and
+     currentUser = u and
+     startTime = t;
+
+-- Release the machine after completion or cancellation
+-- Obj 3: Restores machine to available state
+public unlockMachine : () ==> ()
+unlockMachine() ==
+(
+  status := <Available>;
+  currentUser := nil;
+  startTime := nil;
+  endTime := nil
+)
+pre status <> <Available>
+post status = <Available> and
+     currentUser = nil and
+     startTime = nil and
+     endTime = nil;
+
+end Machine
